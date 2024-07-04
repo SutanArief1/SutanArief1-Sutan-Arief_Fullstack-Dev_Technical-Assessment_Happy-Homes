@@ -5,11 +5,11 @@ const Setting = () => {
     <Box sx={{ width: "30%", padding: "50px", backgroundColor: "white", display: "flex", justifyContent: "center", alignItems: "center", borderRadius: "20px", boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px" }}>
       <Box display={"flex"} flexDirection={"column"} justifyContent={"center"} alignItems={"center"} gap={3} sx={{ width: "100%" }}>
         <Box sx={{ width: "100%" }}>
-          <Typography fontWeight={"bold"} mb={2}>Nama Karyawan</Typography>
+          <Typography mb={2}>Nama Karyawan</Typography>
           <TextField id="outlined-basic" placeholder="Nama Karyawan" variant="outlined" InputLabelProps={{ shrink: false }} sx={{ width: "100%" }} />
         </Box>
         <Box sx={{ width: "100%" }}>
-          <Typography fontWeight={"bold"} mb={2}>Rate</Typography>
+          <Typography mb={2}>Rate</Typography>
           <TextField id="rate" InputLabelProps={{ shrink: false }} sx={{ width: "100%" }}
             InputProps={{ startAdornment: <InputAdornment position="start">Rp</InputAdornment>, endAdornment: <InputAdornment position="end">/Jam</InputAdornment>, inputProps: { min: 0 } }}
           />
