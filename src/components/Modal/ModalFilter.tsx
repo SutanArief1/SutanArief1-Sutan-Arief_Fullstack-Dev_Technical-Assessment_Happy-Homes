@@ -50,7 +50,8 @@ function getStyles(name: string, projectName: readonly string[], theme: Theme) {
 function customChipLabel(label: string, labelOnClick: () => void) {
   return (
     <Stack direction={"row"} alignItems={"center"}>
-      <IconButton size="small" onClick={(e) => {e.stopPropagation(); labelOnClick()}}>
+      <IconButton size="small" onClick={(e) => {e.stopPropagation(); labelOnClick(); console.log('test')}}>
+        
         <CloseIcon fontSize='small' />
       </IconButton>
       <Typography>{label}</Typography>
@@ -80,6 +81,8 @@ const ModalFilter = () => {
 
   const handleRemoveItem = (itemToRemove: string) => {
     const updatedProjects = projectName.filter((item) => item !== itemToRemove);
+    console.log(updatedProjects, 'ini updated project');
+    
     setProjectName(updatedProjects);
   };
 
@@ -130,7 +133,7 @@ const ModalFilter = () => {
                     <Chip
                       key={value}
                       label={customChipLabel(value, () => handleRemoveItem(value))}
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={() => console.log('chip')}
                     />
                   ))}
                 </Box>

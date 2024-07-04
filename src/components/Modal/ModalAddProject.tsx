@@ -1,6 +1,11 @@
 import * as React from 'react';
 import { Box, Button, Modal, Typography } from "@mui/material"
 
+interface IModalAddProjectProps {
+  open: boolean;
+  handleClose: () => void;
+}
+
 const style = {
   position: 'absolute' as 'absolute',
   top: '50%',
@@ -13,22 +18,10 @@ const style = {
   p: 4,
 };
 
-const ModalAddProject = () => {
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+const ModalAddProject: React.FC<IModalAddProjectProps> = ({open, handleClose}) => {
 
   return (
     <Box>
-      <Button
-        onClick={handleOpen}
-        fullWidth
-        sx={{ justifyContent: 'left', p: 0 }}
-      >
-        <Typography sx={{ color: '#F15858', textTransform: 'none' }}>
-          + Tambah Proyek
-        </Typography>
-      </Button>
       <Modal
         open={open}
         onClose={handleClose}

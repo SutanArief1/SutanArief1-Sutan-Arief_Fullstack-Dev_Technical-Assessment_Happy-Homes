@@ -5,7 +5,6 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
 import CloseIcon from '@mui/icons-material/Close';
 import { IconButton, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
 import { DatePicker, TimePicker } from '@mui/x-date-pickers';
@@ -13,8 +12,22 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/id';
-
+import ModalAddProject from './ModalAddProject';
 dayjs.locale('id');
+
+interface IFormData {
+  startDate: Dayjs;
+  endDate: Dayjs;
+  startTime: Dayjs;
+  endTime: Dayjs;
+  titleActivity: string;
+  project: string;
+}
+
+interface IModalAddActivityProps {
+  open: boolean;
+  handleClose: () => void;
+}
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -36,7 +49,7 @@ const names = [
   'Vue Js',
 ];
 
-const ModalAddActivity = () => {
+const ModalAddActivity: React.FC<IModalAddActivityProps> = ({ open, handleClose }) => {
   const [formData, setFormData] = React.useState({
     startDate: dayjs(),
     endDate: dayjs(),
@@ -45,11 +58,8 @@ const ModalAddActivity = () => {
     titleActivity: '',
     project: '',
   });
-  
-  console.log(formData);
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+
+  const [openModalProject, setOpenModalProject] = React.useState(false);
 
   const handleChange = (event: SelectChangeEvent) => {
     setFormData(prev => ({
@@ -58,31 +68,34 @@ const ModalAddActivity = () => {
     }));
   };
 
-  const handleChangeTitleActivity = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDateChange = (field: string) => (date: any) => {
     setFormData(prev => ({
       ...prev,
-      titleActivity: event.target.value,
+      [field]: date,
     }));
   };
 
-  const handleAddProject = () => {
-    alert('Tambah Proyek baru');
+  const handleTimeChange = <T extends keyof IFormData>(field: T) => (time: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: typeof prev[field] === 'string' ? dayjs() : prev[field].hour(time.hour()).minute(time.minute()),
+    }));
   };
 
   const handleSave = () => {
     console.log('Tanggal Mulai:', formData.startDate.format('DD MM YYYY'));
     console.log('Tanggal Berakhir:', formData.endDate.format('DD MM YYYY'));
-    console.log('Jam Mulai:', formData.startTime.format('HH:mm'));
-    console.log('Jam Berakhir:', formData.endTime.format('HH:mm'));
+    console.log('Jam Mulai:', formData.startDate.format('HH:mm'));
+    console.log('Jam Berakhir:', formData.endDate.format('HH:mm'));
     console.log('Judul Kegiatan:', formData.titleActivity);
     console.log('Nama Proyek:', formData.project);
   };
 
   return (
     <Box>
-      <Button onClick={handleOpen} variant="outlined" sx={{ bgcolor: "#F0F6FF", textTransform: "none", fontWeight: "bold" }} startIcon={<AddCircleOutlineRoundedIcon />}>Tambah Kegiatan</Button>
+      <ModalAddProject open={openModalProject} handleClose={() => setOpenModalProject(false)} />
       <Modal
-        open={open}
+        open={!openModalProject && open}
         onClose={handleClose}
       >
         <Box sx={style}>
@@ -96,36 +109,44 @@ const ModalAddActivity = () => {
           </Box>
           <Box p={2} display="flex" gap={2}>
             <Box sx={{ width: "25%" }}>
-              <InputLabel id="outlined-basic" required sx={{ mb: 1, fontSize: 'small', '& .MuiFormLabel-asterisk': { color: '#F15858' } }}>Tanggal Mulai</InputLabel>
+              <InputLabel required sx={{ mb: 1, fontSize: 'small', '& .MuiFormLabel-asterisk': { color: '#F15858' } }}>Tanggal Mulai</InputLabel>
               <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='id'>
                 <DatePicker
+                  value={formData.startDate}
+                  onChange={handleDateChange('startDate')}
                   slots={{ textField: TextField }}
                   format="DD MMM YYYY"
                 />
               </LocalizationProvider>
             </Box>
             <Box sx={{ width: "25%" }}>
-              <InputLabel id="outlined-basic" required sx={{ mb: 1, fontSize: 'small', '& .MuiFormLabel-asterisk': { color: '#F15858' } }}>Tanggal Berakhir</InputLabel>
+              <InputLabel required sx={{ mb: 1, fontSize: 'small', '& .MuiFormLabel-asterisk': { color: '#F15858' } }}>Tanggal Berakhir</InputLabel>
               <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='id'>
                 <DatePicker
+                  value={formData.endDate}
+                  onChange={handleDateChange('endDate')}
                   slots={{ textField: TextField }}
                   format="DD MMM YYYY"
                 />
               </LocalizationProvider>
             </Box>
             <Box sx={{ width: "25%" }}>
-              <InputLabel id="outlined-basic" required sx={{ mb: 1, fontSize: 'small', '& .MuiFormLabel-asterisk': { color: '#F15858' } }}>Jam Mulai</InputLabel>
+              <InputLabel required sx={{ mb: 1, fontSize: 'small', '& .MuiFormLabel-asterisk': { color: '#F15858' } }}>Jam Mulai</InputLabel>
               <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='id'>
                 <TimePicker
+                  value={formData.startTime}
+                  onChange={handleTimeChange('startDate')}
                   slots={{ textField: TextField }}
                   ampm={false}
                 />
               </LocalizationProvider>
             </Box>
             <Box sx={{ width: "25%" }}>
-              <InputLabel id="outlined-basic" required sx={{ mb: 1, fontSize: 'small', '& .MuiFormLabel-asterisk': { color: '#F15858' } }}>Jam Berakhir</InputLabel>
+              <InputLabel required sx={{ mb: 1, fontSize: 'small', '& .MuiFormLabel-asterisk': { color: '#F15858' } }}>Jam Berakhir</InputLabel>
               <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='id'>
                 <TimePicker
+                  value={formData.endTime}
+                  onChange={handleTimeChange('endDate')}
                   slots={{ textField: TextField }}
                   ampm={false}
                 />
@@ -134,7 +155,7 @@ const ModalAddActivity = () => {
           </Box>
           <Box p={2}>
             <InputLabel required sx={{ mb: 1, fontSize: 'small', '& .MuiFormLabel-asterisk': { color: '#F15858' } }}>Judul Kegiatan</InputLabel>
-            <TextField name="titleActivity" fullWidth InputLabelProps={{ shrink: false }} onChange={handleChangeTitleActivity} />
+            <TextField name="titleActivity" fullWidth InputLabelProps={{ shrink: false }} onChange={(e) => setFormData(prev => ({ ...prev, titleActivity: e.target.value }))} />
           </Box>
           <Box p={2}>
             <InputLabel required sx={{ mb: 1, fontSize: 'small', '& .MuiFormLabel-asterisk': { color: '#F15858' } }}>Nama Proyek</InputLabel>
@@ -143,15 +164,16 @@ const ModalAddActivity = () => {
               name='project'
               inputProps={{ 'aria-label': 'Without label' }}
               onChange={handleChange}
+              value={formData.project}
             >
               <MenuItem>
                 <Button
-                  onClick={handleAddProject}
+                  onClick={() => setOpenModalProject(true)}
                   fullWidth
                   sx={{ justifyContent: 'left', p: 0 }}
                 >
                   <Typography sx={{ color: '#F15858', textTransform: 'none' }}>
-                  + Tambah Proyek
+                    + Tambah Proyek
                   </Typography>
                 </Button>
               </MenuItem>

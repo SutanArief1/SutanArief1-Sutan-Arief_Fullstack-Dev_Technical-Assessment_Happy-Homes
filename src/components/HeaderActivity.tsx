@@ -1,10 +1,14 @@
-import { Box, InputAdornment, TextField, Typography } from '@mui/material'
+import { Box, Button, InputAdornment, TextField, Typography } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
+import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
 import ModalAddActivity from './Modal/ModalAddActivity';
 import ModalFilter from './Modal/ModalFilter';
 import React from 'react';
 
 const HeaderActivity = () => {
+  const [open, setOpen] = React.useState(false);  
+  const handleOpen = () => setOpen(true);
+
   return (
     <>
       <Box sx={{ display: 'flex', borderBottom: 1, borderColor: 'divider', width: "100%", p: "10px" }}>
@@ -20,7 +24,10 @@ const HeaderActivity = () => {
       <Box sx={{ display: 'flex', justifyContent: "space-between", alignItems: "center", p: "10px", mt: "20px" }}>
         <Box sx={{ display: "flex", gap: "10px", alignItems: "center", justifyContent: "center" }}>
           <Typography fontWeight={"bold"}>Daftar Kegiatan</Typography>
-          <ModalAddActivity />
+          <Button onClick={handleOpen} variant="outlined" sx={{ bgcolor: "#F0F6FF", textTransform: "none", fontWeight: "bold" }} startIcon={<AddCircleOutlineRoundedIcon />}>
+            Tambah Kegiatan
+          </Button>
+          <ModalAddActivity open={open} handleClose={() => setOpen(false)} />
         </Box>
         <Box sx={{ display: "flex", gap: "10px", alignItems: "center", justifyContent: "center" }}>
           <TextField
