@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 import "./globals.css";
+import StoreProvider from "./StoreProvider";
 
 const nunito = Nunito({ subsets: ["latin"] });
 
@@ -18,12 +19,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <AppRouterCacheProvider>
-          <body className={nunito.className} >
+      <body className={nunito.className} >
+        <AppRouterCacheProvider>
+          <StoreProvider>
             <Navbar />
             {children}
-          </body>
-      </AppRouterCacheProvider>
+          </StoreProvider>
+        </AppRouterCacheProvider>
+      </body>
     </html>
   );
 }

@@ -8,65 +8,28 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { IActivity, ICalculation, IUser } from "@/types";
 import dayjs from "dayjs";
 import duration from 'dayjs/plugin/duration';
+import { calculateTotalDuration, calculateTotalEarnings } from "./helper";
+import { useAppDispatch } from "@/lib/hooks";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
+import { getActivity } from "@/lib/features/activity/activitySlice";
 dayjs.extend(duration)
 
-async function fetchData() {
-  const res = await fetch('http://localhost:3001/activity/')
+// const deleteActivity = async (id: string) => {
+//   try {
+//     const res = await fetch(`http://localhost:3001/activities/${id}`, {
+//       method: 'DELETE',
+//     });
 
-  if (!res.ok) {
-    throw new Error('Failed to fetch data')
-  }
+//     if (!res.ok) {
+//       throw new Error('Failed to delete activity');
+//     }
 
-  return res.json()
-}
-
-const deleteActivity = async (id: string) => {
-  try {
-    const res = await fetch(`http://localhost:3001/activities/${id}`, {
-      method: 'DELETE',
-    });
-
-    if (!res.ok) {
-      throw new Error('Failed to delete activity');
-    }
-
-    console.log('Activity deleted successfully');
-  } catch (error) {
-    console.error('Error deleting activity:', error);
-  }
-};
-
-const calculateTotalEarnings = (rows: ICalculation[]) => {  
-  let totalMinutes = 0;
-  let ratePerMinute = 0;
-  rows.forEach(row => {
-    const parts = row.duration.split(' ');
-    const days = parseInt(parts[0]) || 0;
-    const hours = parseInt(parts[2]) || 0;
-    const minutes = parseInt(parts[4]) || 0;
-    totalMinutes += (days * 24 * 60) + (hours * 60) + minutes;
-    ratePerMinute = row.user.rate
-  });
-  ratePerMinute / 60
-  const totalHours = totalMinutes / 60;
-  return totalHours * ratePerMinute;
-}
-
-const calculateTotalDuration = (rows: ICalculation[]) => {
-  let totalMinutes = 0;
-  rows.forEach(row => {
-    const parts = row.duration.split(' ');
-    const days = parseInt(parts[0]) || 0;
-    const hours = parseInt(parts[2]) || 0;
-    const minutes = parseInt(parts[4]) || 0;
-    totalMinutes += (days * 24 * 60) + (hours * 60) + minutes;
-  });
-  const totalHours = Math.floor(totalMinutes / 60);
-  const remainingMinutes = totalMinutes % 60;
-  const totalDays = Math.floor(totalHours / 24);
-  const remainingHours = totalHours % 24;
-  return `${totalDays} Hari ${remainingHours} Jam ${remainingMinutes} Menit`;
-}
+//     console.log('Activity deleted successfully');
+//   } catch (error) {
+//     console.error('Error deleting activity:', error);
+//   }
+// };
 
 const columns: GridColDef[] = [
   { field: 'title_activity', headerName: 'Judul Kegiatan', width: 450 },
@@ -105,6 +68,9 @@ const formatDataForGrid = (data: ICalculation[]) => {
 };
 
 const TableActivity = () => {
+  // const dispatch = useAppDispatch();
+  const activities = useSelector((state: RootState) => state.activities.activities);
+  console.log(activities, 'ini actvitieswwwwwww');
   const [rows, setRows] = React.useState<ICalculation[]>([]);
   const [totalDuration, setTotalDuration] = React.useState<string>("");
   const [totalEarnings, setTotalEarnings] = React.useState<number>(0);
@@ -112,18 +78,17 @@ const TableActivity = () => {
   React.useEffect(() => {
     const getData = async () => {
       try {
-        const data = await fetchData();        
-        const formattedData = formatDataForGrid(data);
+        const formattedData = formatDataForGrid(activities);
         setRows(formattedData);
-        setTotalDuration(calculateTotalDuration(data));
-        setTotalEarnings(calculateTotalEarnings(data));
+        setTotalDuration(calculateTotalDuration(activities));
+        setTotalEarnings(calculateTotalEarnings(activities));
       } catch (error) {
         console.error(error);
       }
     };
 
     getData();
-  }, [totalDuration]);
+  }, [activities]);
 
 
   return (

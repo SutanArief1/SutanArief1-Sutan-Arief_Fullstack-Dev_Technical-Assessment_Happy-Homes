@@ -14,7 +14,13 @@ import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import 'dayjs/locale/id';
 import ModalAddProject from './ModalAddProject';
-import { IActivity, IFormData, IModalAddActivityProps, IProject } from '@/types';
+import { IActivity, IFormData, IModalAddActivityProps, IProject, IUser } from '@/types';
+import { useAppDispatch } from '@/lib/hooks';
+import { useSelector } from 'react-redux';
+import { fetchProjects } from '@/lib/features/projects/projectsSlice';
+import { RootState } from '@/lib/store';
+import { fetchUsersById } from '@/lib/features/users/usersSlice';
+import { createActivity } from '@/lib/features/activity/activitySlice';
 dayjs.locale('id');
 dayjs.extend(duration);
 
@@ -30,65 +36,11 @@ const style = {
   p: 2,
 };
 
-const names = [
-  'React Js',
-  'Next Js',
-  'Laravel',
-  'Node Js',
-  'Vue Js',
-];
-
-async function createData(newActivity: IActivity) {
-  try {
-    const res = await fetch('http://localhost:3001/activity/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newActivity),
-    })
-
-    console.log(res);
-
-    if (!res.ok) {
-      throw new Error('Failed to post data')
-    }
-
-    return res.json()
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-async function fetchProjects() {
-  const res = await fetch('http://localhost:3001/project/')
-
-  if (!res.ok) {
-    throw new Error('Failed to fetch projects')
-  }
-
-  return res.json()
-}
-
 const ModalAddActivity: React.FC<IModalAddActivityProps> = ({ open, handleClose }) => {
-  const [rows, setRows] = React.useState<IActivity[]>([]);
-  const [projects, setProjects] = React.useState<IProject[]>([]);
-  const [userId, setUserId] = React.useState('');
-
-  async function fetchData() {
-    try {
-      const res = await fetch('http://localhost:3001/users/user');
-
-      if (!res.ok) {
-        throw new Error('Failed to fetch data');
-      }
-
-      const data = await res.json();
-      setUserId(data.id);
-    } catch (error) {
-      console.error('Error fetching latest user:', error);
-    }
-  }
+  const dispatch = useAppDispatch();
+  const activities = useSelector((state: RootState) => state.activities.activities);
+  const projects = useSelector((state: RootState) => state.projects.projects)
+  const user = useSelector((state: RootState) => state.users.users);
 
   const [formData, setFormData] = React.useState({
     startDate: dayjs(),
@@ -100,20 +52,6 @@ const ModalAddActivity: React.FC<IModalAddActivityProps> = ({ open, handleClose 
   });
 
   const [openModalProject, setOpenModalProject] = React.useState(false);
-
-  React.useEffect(() => {
-    const getProjects = async () => {
-      try {
-        const data = await fetchProjects();
-        setProjects(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchData();
-    getProjects();
-  }, []);
 
   const handleChange = (event: SelectChangeEvent) => {
     setFormData(prev => ({
@@ -139,19 +77,23 @@ const ModalAddActivity: React.FC<IModalAddActivityProps> = ({ open, handleClose 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const selectedProject = projects.find(project => project.id === Number(formData.project));
+    const selectedProject = projects.find((project: IProject) => project.id === Number(formData.project));
+
+    if (!selectedProject) {
+      console.error('Selected project not found');
+      return;
+    }
 
     const newActivity: IActivity = {
       start_date: formData.startDate.format('YYYY-MM-DDTHH:mm:ss[Z]'),
       end_date: formData.endDate.format('YYYY-MM-DDTHH:mm:ss[Z]'),
       title_activity: formData.titleActivity,
-      projectId: selectedProject ? selectedProject.id : 0,
-      userId: userId,
+      projectId: formData.project,
+      userId: user,
     };
 
     try {
-      const data = await createData(newActivity);
-      setRows([...rows, data]);
+      const data = await dispatch(createActivity(newActivity));
       setFormData({
         startDate: dayjs(),
         endDate: dayjs(),
@@ -160,10 +102,32 @@ const ModalAddActivity: React.FC<IModalAddActivityProps> = ({ open, handleClose 
         titleActivity: '',
         project: '',
       });
+      handleClose()
     } catch (error) {
-      console.error(error);
+      console.error('Failed to create activity:', error);
     }
-  };  
+  };
+
+  React.useEffect(() => {
+    const getProjects = async () => {
+      try {
+        const actionResult = await dispatch(fetchProjects());
+      } catch (error) {
+        console.error('Failed to fetch projects:', error);
+      }
+    };
+
+    const getUsers = async () => {
+      try {
+        await dispatch(fetchUsersById());
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+      }
+    };
+
+    getUsers();
+    getProjects();
+  }, [dispatch]);
 
   return (
     <Box>

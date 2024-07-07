@@ -9,17 +9,23 @@ export interface IFormData {
   project: string;
 }
 
-export interface IProject {
-  id: number;
-  project_name: string;
-}
-
 export interface IActivity {
   start_date: string;
   end_date: string;
   title_activity: string;
-  projectId: number;
-  userId: string;
+  projectId?: IProject;
+  userId?: string;
+}
+
+export interface IProject {
+  id?: number;
+  project_name?: string;
+}
+
+export interface IUser {
+  id: string;
+  name?: string;
+  rate?: number;
 }
 
 export interface ICalculation {
@@ -38,9 +44,4 @@ export interface ICalculation {
 export interface IModalAddActivityProps {
   open: boolean;
   handleClose: () => void;
-}
-
-export interface IUser {
-  name: string;
-  rate: number;
 }
