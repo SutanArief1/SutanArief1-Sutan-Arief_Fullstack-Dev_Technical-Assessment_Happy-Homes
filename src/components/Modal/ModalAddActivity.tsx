@@ -21,7 +21,6 @@ import { fetchProjects } from '@/lib/features/projects/projectsSlice';
 import { RootState } from '@/lib/store';
 import { fetchUsersById } from '@/lib/features/users/usersSlice';
 import { createActivity, fetchActivities } from '@/lib/features/activity/activitySlice';
-import { useRouter } from 'next/navigation';
 dayjs.locale('id');
 dayjs.extend(duration);
 

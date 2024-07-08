@@ -12,67 +12,63 @@ import duration from 'dayjs/plugin/duration';
 import { calculateTotalDuration, calculateTotalEarnings } from "./helper";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
-import { fetchActivities } from "@/lib/features/activity/activitySlice";
+import { deleteActivity, fetchActivities } from "@/lib/features/activity/activitySlice";
 dayjs.extend(duration)
-
-// const deleteActivity = async (id: string) => {
-//   try {
-//     const res = await fetch(`http://localhost:3001/activities/${id}`, {
-//       method: 'DELETE',
-//     });
-
-//     if (!res.ok) {
-//       throw new Error('Failed to delete activity');
-//     }
-
-//     console.log('Activity deleted successfully');
-//   } catch (error) {
-//     console.error('Error deleting activity:', error);
-//   }
-// };
-
-const columns: GridColDef[] = [
-  { field: 'title_activity', headerName: 'Judul Kegiatan', width: 450 },
-  { field: 'project_name', headerName: 'Nama Proyek', width: 200 },
-  { field: 'start_date', headerName: 'Tanggal Mulai', width: 200, valueFormatter: (value) => dayjs(value).format('YYYY MMM DD') },
-  { field: 'end_date', headerName: 'Tanggal Berakhir', width: 200, valueFormatter: (value) => dayjs(value).format('YYYY MMM DD') },
-  { field: 'start_time', headerName: 'Waktu Mulai', width: 200, valueFormatter: (value) => dayjs(value).format('HH:mm') },
-  { field: 'end_time', headerName: 'Waktu Berakhir', width: 200, valueFormatter: (value) => dayjs(value).format('HH:mm') },
-  { field: 'duration', headerName: 'Durasi', width: 180 },
-  {
-    field: 'action',
-    headerName: 'Aksi',
-    width: 100,
-    disableColumnMenu: true,
-    hideSortIcons: true,
-    renderCell: () => (
-      <Box sx={{ display: "flex", gap: "10px", alignItems: "center", height: "100%" }}>
-        <Button sx={{ color: "#F15858", padding: "0px", minWidth: "0px" }}>
-          <DriveFileRenameOutlineOutlinedIcon />
-        </Button>
-        <Button sx={{ color: "#F15858", padding: "0px", minWidth: "0px" }}>
-          <DeleteOutlineIcon />
-        </Button>
-      </Box>
-    ),
-  },
-];
-
-const formatDataForGrid = (data: IActivity[]) => {
-  return data.map((item) => ({
-    ...item,
-    start_time: item.start_date,
-    end_time: item.end_date,
-    project_name: item.project.project_name
-  }));
-};
 
 const TableActivity = () => {
   const dispatch = useAppDispatch();
   const activities = useSelector((state: RootState) => state.activities.activities);
+  console.log(activities, 'ini activities');
+
   const [formatData, setFormatData] = React.useState<ICalculation[]>([]);
   const [totalDuration, setTotalDuration] = React.useState<string>("");
   const [totalEarnings, setTotalEarnings] = React.useState<number>(0);
+
+  const handleDelete = async (id: string) => {
+    try {
+      await dispatch(deleteActivity(id));
+      dispatch(fetchActivities());
+      console.log("Delete activity with id:", id);
+    } catch (error) {
+      console.error("Failed to delete activity:", error);
+    }
+  };
+  
+  const columns: GridColDef[] = [
+    { field: 'title_activity', headerName: 'Judul Kegiatan', width: 450 },
+    { field: 'project_name', headerName: 'Nama Proyek', width: 200 },
+    { field: 'start_date', headerName: 'Tanggal Mulai', width: 200, valueFormatter: (value) => dayjs(value).format('YYYY MMM DD') },
+    { field: 'end_date', headerName: 'Tanggal Berakhir', width: 200, valueFormatter: (value) => dayjs(value).format('YYYY MMM DD') },
+    { field: 'start_time', headerName: 'Waktu Mulai', width: 200, valueFormatter: (value) => dayjs(value).format('HH:mm') },
+    { field: 'end_time', headerName: 'Waktu Berakhir', width: 200, valueFormatter: (value) => dayjs(value).format('HH:mm') },
+    { field: 'duration', headerName: 'Durasi', width: 180 },
+    {
+      field: 'action',
+      headerName: 'Aksi',
+      width: 100,
+      disableColumnMenu: true,
+      hideSortIcons: true,
+      renderCell: (params) => (
+        <Box sx={{ display: "flex", gap: "10px", alignItems: "center", height: "100%" }}>
+          <Button sx={{ color: "#F15858", padding: "0px", minWidth: "0px" }}>
+            <DriveFileRenameOutlineOutlinedIcon />
+          </Button>
+          <Button sx={{ color: "#F15858", padding: "0px", minWidth: "0px" }} onClick={() => { handleDelete(params.row.id) }}>
+            <DeleteOutlineIcon />
+          </Button>
+        </Box>
+      ),
+    },
+  ];
+  
+  const formatDataForGrid = (data: IActivity[]) => {
+    return data.map((item) => ({
+      ...item,
+      start_time: item.start_date,
+      end_time: item.end_date,
+      project_name: item.project ? item.project.project_name : 'Project tidak tersedia'
+    }));
+  };
 
   React.useEffect(() => {
     dispatch(fetchActivities());
@@ -86,25 +82,6 @@ const TableActivity = () => {
       setTotalEarnings(calculateTotalEarnings(activities));
     }
   }, [activities]);
-  
-  // React.useEffect(() => {
-  //   const getData = async () => {
-  //     try {
-  //       const formattedData = formatDataForGrid(activities);
-  //       console.log(formattedData, 'ini formatted data');
-        
-  //       setFormatData(formattedData);
-  //       setTotalDuration(calculateTotalDuration(activities));
-  //       setTotalEarnings(calculateTotalEarnings(activities));
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-
-  //   dispatch(fetchActivities())
-  //   getData();
-  // }, []);
-
 
   return (
     <Box>

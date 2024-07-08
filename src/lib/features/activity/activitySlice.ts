@@ -45,6 +45,21 @@ export const createActivity = createAsyncThunk(
   }
 );
 
+export const deleteActivity = createAsyncThunk(
+  'activities/deleteActivity',
+  async (activityId: string) => {
+    const res = await fetch(`http://localhost:3001/activity/${activityId}`, {
+      method: 'DELETE',
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to delete activity');
+    }
+
+    return res.json();
+  }
+);
+
 const activitySlice = createSlice({
   name: 'activities',
   initialState,
@@ -54,6 +69,12 @@ const activitySlice = createSlice({
       .addCase(fetchActivities.fulfilled, (state, action: PayloadAction<IActivity[]>) => {
         state.status = 'succeeded';
         state.activities = action.payload;
+      })
+      .addCase(createActivity.fulfilled, (state, action: PayloadAction<IActivity>) => {
+        state.activities.push(action.payload);
+      })
+      .addCase(deleteActivity.fulfilled, (state, action: PayloadAction<string>) => {
+        state.activities = state.activities.filter(activity => activity.id !== action.payload);
       })
   },
 });

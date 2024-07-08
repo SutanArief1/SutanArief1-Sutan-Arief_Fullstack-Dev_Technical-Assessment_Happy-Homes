@@ -1,21 +1,27 @@
 import { IActivity, ICalculation } from "@/types/";
 
-export const calculateTotalEarnings = (rows: IActivity[]) => {    
+export const calculateTotalEarnings = (rows: IActivity[]) => {
   let totalMinutes = 0;
-  let ratePerMinute = 0;
+  let totalEarnings = 0;
+
   rows.forEach(row => {
     const parts = row.duration.split(' ');
     const days = parseInt(parts[0]) || 0;
     const hours = parseInt(parts[2]) || 0;
     const minutes = parseInt(parts[4]) || 0;
     totalMinutes += (days * 24 * 60) + (hours * 60) + minutes;
-    ratePerMinute = row.user.rate
-  });
-  ratePerMinute / 60
-  const totalHours = totalMinutes / 60;
-  return totalHours * ratePerMinute;
-}
 
+    if (row.user && typeof row.user.rate === 'number') {
+      const ratePerMinute = row.user.rate;
+      const earnings = (totalMinutes / 60) * ratePerMinute;
+      totalEarnings += earnings;
+    } else {
+      console.warn(`User or rate is undefined for activity: ${row}`);
+    }
+  });
+
+  return totalEarnings;
+};
 
 export const calculateTotalDuration = (rows: IActivity[]) => {
   let totalMinutes = 0;
