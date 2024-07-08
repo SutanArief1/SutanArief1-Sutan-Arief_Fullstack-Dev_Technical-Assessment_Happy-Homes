@@ -33,7 +33,7 @@ const Homepage = () => {
           </TabPanel>
           <TabPanel value="2" sx={{ backgroundColor: "#F7F8FB" }}>
             <Box display="flex" justifyContent="center" alignItems="center" py={15}>
-              <Setting />
+              <Setting setValue={setValue} />
             </Box>
           </TabPanel>
         </TabContext>

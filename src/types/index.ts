@@ -13,19 +13,22 @@ export interface IActivity {
   start_date: string;
   end_date: string;
   title_activity: string;
-  projectId?: IProject;
-  userId?: string;
+  duration: string;
+  project: IProject;
+  user: IUser;
+  projectId: number;
+  userId: string;
 }
 
 export interface IProject {
-  id?: number;
-  project_name?: string;
+  id: number;
+  project_name: string;
 }
 
 export interface IUser {
   id: string;
-  name?: string;
-  rate?: number;
+  name: string;
+  rate: number;
 }
 
 export interface ICalculation {

@@ -1,6 +1,7 @@
 "use client"
 
 import { Box, Button, Typography } from "@mui/material"
+import { useAppDispatch } from "@/lib/hooks";
 import * as React from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
@@ -9,10 +10,9 @@ import { IActivity, ICalculation, IUser } from "@/types";
 import dayjs from "dayjs";
 import duration from 'dayjs/plugin/duration';
 import { calculateTotalDuration, calculateTotalEarnings } from "./helper";
-import { useAppDispatch } from "@/lib/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
-import { getActivity } from "@/lib/features/activity/activitySlice";
+import { fetchActivities } from "@/lib/features/activity/activitySlice";
 dayjs.extend(duration)
 
 // const deleteActivity = async (id: string) => {
@@ -58,7 +58,7 @@ const columns: GridColDef[] = [
   },
 ];
 
-const formatDataForGrid = (data: ICalculation[]) => {
+const formatDataForGrid = (data: IActivity[]) => {
   return data.map((item) => ({
     ...item,
     start_time: item.start_date,
@@ -68,34 +68,49 @@ const formatDataForGrid = (data: ICalculation[]) => {
 };
 
 const TableActivity = () => {
-  // const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
   const activities = useSelector((state: RootState) => state.activities.activities);
-  console.log(activities, 'ini actvitieswwwwwww');
-  const [rows, setRows] = React.useState<ICalculation[]>([]);
+  const [formatData, setFormatData] = React.useState<ICalculation[]>([]);
   const [totalDuration, setTotalDuration] = React.useState<string>("");
   const [totalEarnings, setTotalEarnings] = React.useState<number>(0);
 
   React.useEffect(() => {
-    const getData = async () => {
-      try {
-        const formattedData = formatDataForGrid(activities);
-        setRows(formattedData);
-        setTotalDuration(calculateTotalDuration(activities));
-        setTotalEarnings(calculateTotalEarnings(activities));
-      } catch (error) {
-        console.error(error);
-      }
-    };
+    dispatch(fetchActivities());
+  }, [dispatch]);
 
-    getData();
+  React.useEffect(() => {
+    if (activities.length > 0) {
+      const formatted = formatDataForGrid(activities);
+      setFormatData(formatted);
+      setTotalDuration(calculateTotalDuration(activities));
+      setTotalEarnings(calculateTotalEarnings(activities));
+    }
   }, [activities]);
+  
+  // React.useEffect(() => {
+  //   const getData = async () => {
+  //     try {
+  //       const formattedData = formatDataForGrid(activities);
+  //       console.log(formattedData, 'ini formatted data');
+        
+  //       setFormatData(formattedData);
+  //       setTotalDuration(calculateTotalDuration(activities));
+  //       setTotalEarnings(calculateTotalEarnings(activities));
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
+
+  //   dispatch(fetchActivities())
+  //   getData();
+  // }, []);
 
 
   return (
     <Box>
       <Box style={{ width: '100%' }}>
         <DataGrid
-          rows={rows}
+          rows={formatData}
           columns={columns}
           hideFooter={true}
           getRowId={(row) => row.id}

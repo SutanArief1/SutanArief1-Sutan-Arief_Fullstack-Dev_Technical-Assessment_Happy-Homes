@@ -1,8 +1,13 @@
 import React, { FormEvent, useState } from 'react';
 import { Box, Button, InputAdornment, TextField, Typography } from '@mui/material'
+import { useRouter } from 'next/navigation';
 
-const Setting = () => {
-  const [users, setUsers] = useState([]);
+interface SettingProps {
+  setValue: (value: string) => void;
+}
+
+const Setting: React.FC<SettingProps> = ({ setValue }) => {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
     rate: '',
@@ -35,7 +40,11 @@ const Setting = () => {
     event.preventDefault();
     try {
       const data = await createData();
-      console.log('Data created:', data);
+      if (data) {
+        setValue('1');
+      }
+
+      return data
     } catch (error) {
       console.error('Error:', error);
     }

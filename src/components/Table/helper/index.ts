@@ -1,6 +1,6 @@
-import { ICalculation } from "@/types/";
+import { IActivity, ICalculation } from "@/types/";
 
-export const calculateTotalEarnings = (rows: ICalculation[]) => {  
+export const calculateTotalEarnings = (rows: IActivity[]) => {    
   let totalMinutes = 0;
   let ratePerMinute = 0;
   rows.forEach(row => {
@@ -17,7 +17,7 @@ export const calculateTotalEarnings = (rows: ICalculation[]) => {
 }
 
 
-export const calculateTotalDuration = (rows: ICalculation[]) => {
+export const calculateTotalDuration = (rows: IActivity[]) => {
   let totalMinutes = 0;
   rows.forEach(row => {
     const parts = row.duration.split(' ');

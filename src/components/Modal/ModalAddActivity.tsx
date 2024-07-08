@@ -20,7 +20,8 @@ import { useSelector } from 'react-redux';
 import { fetchProjects } from '@/lib/features/projects/projectsSlice';
 import { RootState } from '@/lib/store';
 import { fetchUsersById } from '@/lib/features/users/usersSlice';
-import { createActivity } from '@/lib/features/activity/activitySlice';
+import { createActivity, fetchActivities } from '@/lib/features/activity/activitySlice';
+import { useRouter } from 'next/navigation';
 dayjs.locale('id');
 dayjs.extend(duration);
 
@@ -38,7 +39,6 @@ const style = {
 
 const ModalAddActivity: React.FC<IModalAddActivityProps> = ({ open, handleClose }) => {
   const dispatch = useAppDispatch();
-  const activities = useSelector((state: RootState) => state.activities.activities);
   const projects = useSelector((state: RootState) => state.projects.projects)
   const user = useSelector((state: RootState) => state.users.users);
 
@@ -70,7 +70,7 @@ const ModalAddActivity: React.FC<IModalAddActivityProps> = ({ open, handleClose 
   const handleTimeChange = <T extends keyof IFormData>(field: T) => (time: any) => {
     setFormData(prev => ({
       ...prev,
-      [field]: typeof prev[field] === 'string' ? dayjs() : prev[field].hour(time.hour()).minute(time.minute()),
+      [field]: time,
     }));
   };
 
@@ -84,11 +84,11 @@ const ModalAddActivity: React.FC<IModalAddActivityProps> = ({ open, handleClose 
       return;
     }
 
-    const newActivity: IActivity = {
+    const newActivity = {
       start_date: formData.startDate.format('YYYY-MM-DDTHH:mm:ss[Z]'),
       end_date: formData.endDate.format('YYYY-MM-DDTHH:mm:ss[Z]'),
       title_activity: formData.titleActivity,
-      projectId: formData.project,
+      projectId: Number(formData.project),
       userId: user,
     };
 
@@ -102,12 +102,15 @@ const ModalAddActivity: React.FC<IModalAddActivityProps> = ({ open, handleClose 
         titleActivity: '',
         project: '',
       });
+      dispatch(fetchActivities())
       handleClose()
+
+      return data
     } catch (error) {
       console.error('Failed to create activity:', error);
     }
   };
-
+  
   React.useEffect(() => {
     const getProjects = async () => {
       try {
