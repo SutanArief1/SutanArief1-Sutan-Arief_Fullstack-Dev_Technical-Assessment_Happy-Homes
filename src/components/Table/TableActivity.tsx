@@ -18,11 +18,9 @@ dayjs.extend(duration)
 const TableActivity = () => {
   const dispatch = useAppDispatch();
   const activities = useSelector((state: RootState) => state.activities.activities);
-  console.log(activities, 'ini activities');
-
   const [formatData, setFormatData] = React.useState<ICalculation[]>([]);
   const [totalDuration, setTotalDuration] = React.useState<string>("");
-  const [totalEarnings, setTotalEarnings] = React.useState<number>(0);
+  const [totalEarnings, setTotalEarnings] = React.useState<number>(0);  
 
   const handleDelete = async (id: string) => {
     try {

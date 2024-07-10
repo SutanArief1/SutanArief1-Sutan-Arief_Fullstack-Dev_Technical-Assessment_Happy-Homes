@@ -26,6 +26,29 @@ export const fetchProjects = createAsyncThunk(
   }
 );
 
+export const createProject = createAsyncThunk(
+  'projects/createProject',
+  async (newProject: IProject, thunkAPI) => {
+    try {
+      const res = await fetch('http://localhost:3001/project/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newProject),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to create project');
+      }
+
+      return res.json();
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error || 'Failed to create project');
+    }
+  }
+);
+
 const projectsSlice = createSlice({
   name: 'projects',
   initialState,
@@ -43,6 +66,18 @@ const projectsSlice = createSlice({
       .addCase(fetchProjects.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Failed to fetch projects';
+      })
+      .addCase(createProject.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(createProject.fulfilled, (state, action: PayloadAction<IProject>) => {
+        state.status = 'succeeded';
+        state.projects.push(action.payload);
+      })
+      .addCase(createProject.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Failed to create project';
       });
   },
 });

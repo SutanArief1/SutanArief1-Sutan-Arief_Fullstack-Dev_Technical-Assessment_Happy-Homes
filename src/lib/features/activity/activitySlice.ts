@@ -1,4 +1,4 @@
-import { IActivity, ICalculation } from '@/types';
+import { IActivity, IAddActivity, ICalculation } from '@/types';
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
 interface ActivityState {
@@ -28,7 +28,7 @@ export const fetchActivities = createAsyncThunk(
 
 export const createActivity = createAsyncThunk(
   'activities/createActivity',
-  async (newActivity: IActivity) => {
+  async (newActivity: IAddActivity) => {
     const res = await fetch('http://localhost:3001/activity/', {
       method: 'POST',
       headers: {

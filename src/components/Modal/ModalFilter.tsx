@@ -5,7 +5,9 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import CloseIcon from '@mui/icons-material/Close';
-import { Chip, FormControl, IconButton, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent, Stack, TextField, Theme, useTheme } from '@mui/material';
+import { Chip, IconButton, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent, Stack, Theme, useTheme } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/lib/store';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -30,14 +32,6 @@ const MenuProps = {
   },
 };
 
-const names = [
-  'React Js',
-  'Next Js',
-  'Laravel',
-  'Node Js',
-  'Vue Js',
-];
-
 function getStyles(name: string, projectName: readonly string[], theme: Theme) {
   return {
     fontWeight:
@@ -50,8 +44,8 @@ function getStyles(name: string, projectName: readonly string[], theme: Theme) {
 function customChipLabel(label: string, labelOnClick: () => void) {
   return (
     <Stack direction={"row"} alignItems={"center"}>
-      <IconButton size="small" onClick={(e) => {e.stopPropagation(); labelOnClick(); console.log('test')}}>
-        
+      <IconButton size="small" onClick={(e) => { e.stopPropagation(); labelOnClick(); console.log('test') }}>
+
         <CloseIcon fontSize='small' />
       </IconButton>
       <Typography>{label}</Typography>
@@ -60,6 +54,8 @@ function customChipLabel(label: string, labelOnClick: () => void) {
 }
 
 const ModalFilter = () => {
+  const dispatch = useDispatch();
+  const projects = useSelector((state: RootState) => state.projects.projects);
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [projectName, setProjectName] = React.useState<string[]>([]);
@@ -81,8 +77,6 @@ const ModalFilter = () => {
 
   const handleRemoveItem = (itemToRemove: string) => {
     const updatedProjects = projectName.filter((item) => item !== itemToRemove);
-    console.log(updatedProjects, 'ini updated project');
-    
     setProjectName(updatedProjects);
   };
 
@@ -140,13 +134,13 @@ const ModalFilter = () => {
               )}
               MenuProps={MenuProps}
             >
-              {names.map((name) => (
+              {projects.map((project) => (
                 <MenuItem
-                  key={name}
-                  value={name}
-                  style={getStyles(name, projectName, theme)}
+                  key={project.id}
+                  value={project.project_name}
+                  style={getStyles(project.project_name, projectName, theme)}
                 >
-                  {name}
+                  {project.project_name}
                 </MenuItem>
               ))}
             </Select>

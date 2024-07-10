@@ -9,6 +9,14 @@ export interface IFormData {
   project: string;
 }
 
+export interface IAddActivity {
+  start_date: string;
+  end_date: string;
+  title_activity: string;
+  projectId: number;
+  userId: string;
+}
+
 export interface IActivity {
   id: string;
   start_date: string;
@@ -22,7 +30,7 @@ export interface IActivity {
 }
 
 export interface IProject {
-  id: number;
+  id?: number;
   project_name: string;
 }
 

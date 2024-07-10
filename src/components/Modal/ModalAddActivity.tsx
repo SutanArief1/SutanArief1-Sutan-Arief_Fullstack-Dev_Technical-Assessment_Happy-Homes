@@ -14,7 +14,7 @@ import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import 'dayjs/locale/id';
 import ModalAddProject from './ModalAddProject';
-import { IActivity, IFormData, IModalAddActivityProps, IProject, IUser } from '@/types';
+import { IAddActivity, IFormData, IModalAddActivityProps, IProject } from '@/types';
 import { useAppDispatch } from '@/lib/hooks';
 import { useSelector } from 'react-redux';
 import { fetchProjects } from '@/lib/features/projects/projectsSlice';
@@ -41,7 +41,7 @@ const ModalAddActivity: React.FC<IModalAddActivityProps> = ({ open, handleClose 
   const projects = useSelector((state: RootState) => state.projects.projects)
   const user = useSelector((state: RootState) => state.users.users);
 
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = React.useState<IFormData>({
     startDate: dayjs(),
     endDate: dayjs(),
     startTime: dayjs().startOf('day'),
@@ -59,14 +59,14 @@ const ModalAddActivity: React.FC<IModalAddActivityProps> = ({ open, handleClose 
     }));
   };
 
-  const handleDateChange = (field: string) => (date: any) => {
+  const handleDateChange = (field: 'startDate' | 'endDate') => (date: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: date,
     }));
   };
 
-  const handleTimeChange = <T extends keyof IFormData>(field: T) => (time: any) => {
+  const handleTimeChange = (field: 'startTime' | 'endTime') => (time: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: time,
@@ -83,13 +83,24 @@ const ModalAddActivity: React.FC<IModalAddActivityProps> = ({ open, handleClose 
       return;
     }
 
-    const newActivity = {
-      start_date: formData.startDate.format('YYYY-MM-DDTHH:mm:ss[Z]'),
-      end_date: formData.endDate.format('YYYY-MM-DDTHH:mm:ss[Z]'),
+    const startDateTime = formData.startDate
+      .hour(formData.startTime.hour())
+      .minute(formData.startTime.minute());
+
+    const endDateTime = formData.endDate
+      .hour(formData.endTime.hour())
+      .minute(formData.endTime.minute());
+
+    const newActivity: IAddActivity = {
+      start_date: startDateTime.format('YYYY-MM-DDTHH:mm:ss[Z]'),
+      end_date: endDateTime.format('YYYY-MM-DDTHH:mm:ss[Z]'),
       title_activity: formData.titleActivity,
       projectId: Number(formData.project),
       userId: user,
     };
+
+    console.log(newActivity, 'newActivity');
+    
 
     try {
       const data = await dispatch(createActivity(newActivity));
@@ -113,7 +124,7 @@ const ModalAddActivity: React.FC<IModalAddActivityProps> = ({ open, handleClose 
   React.useEffect(() => {
     const getProjects = async () => {
       try {
-        const actionResult = await dispatch(fetchProjects());
+        await dispatch(fetchProjects());
       } catch (error) {
         console.error('Failed to fetch projects:', error);
       }
@@ -176,7 +187,7 @@ const ModalAddActivity: React.FC<IModalAddActivityProps> = ({ open, handleClose 
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='id'>
                   <TimePicker
                     value={formData.startTime}
-                    onChange={handleTimeChange('startDate')}
+                    onChange={handleTimeChange('startTime')}
                     slots={{ textField: TextField }}
                     ampm={false}
                   />
@@ -187,7 +198,7 @@ const ModalAddActivity: React.FC<IModalAddActivityProps> = ({ open, handleClose 
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='id'>
                   <TimePicker
                     value={formData.endTime}
-                    onChange={handleTimeChange('endDate')}
+                    onChange={handleTimeChange('endTime')}
                     slots={{ textField: TextField }}
                     ampm={false}
                   />
